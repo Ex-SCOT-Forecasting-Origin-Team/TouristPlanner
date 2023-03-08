@@ -4,8 +4,7 @@ import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import { servicesVersion } from 'typescript';
-import { GoogleMap, useJsApiLoader , Marker} from "@react-google-maps/api";
+import { renderToStaticMarkup } from "react-dom/server"
 
 
 export default function GoogleMapSearchBar() {
@@ -14,6 +13,12 @@ export default function GoogleMapSearchBar() {
     const searchKeyWord = document.getElementById("searchkeyWord") as HTMLInputElement;
     const searchType = document.getElementById("searchType") as HTMLInputElement;
     searchPlace(searchKeyWord.value, searchType.value)
+  }
+
+  const clickSavePlace = (e: React.FormEvent) => {
+    e.preventDefault();
+    const searchKeyWord = document.getElementById("searchkeyWord") as HTMLInputElement
+    searchKeyWord.innerText = ""
   }
 
   const searchPlace = (searchKeyWord: string, searchType: string) => {
@@ -28,16 +33,41 @@ export default function GoogleMapSearchBar() {
         });
 
         for (let idx = 0; idx < placeResults.length; idx++){
-          const location = placeResults[idx].geometry as google.maps.places.PlaceGeometry
+          console.log(placeResults[idx])
+          const placeResult = placeResults[idx]
+          const location = placeResult.geometry as google.maps.places.PlaceGeometry
           const latlng = location.location as google.maps.LatLng
           const marker = new google.maps.Marker({
             position: latlng as google.maps.LatLng,
             map: map
           });
-          // TODO add html element
-          let element = document.createElement('div') as HTMLDivElement
+          
+
+          const contentString = () => { return (
+            <div>
+            <h4>{placeResult.name} {placeResult.rating}</h4>
+            <Form>
+
+              <Row className="mb-3">
+                <Form.Group as={Col} controlId="locationStartTime">
+                  <Form.Label>StartTime</Form.Label>
+                  <Form.Control type="time" placeholder="09:00" />
+                </Form.Group>
+                <Form.Group as={Col} controlId="locationEndTime">
+                  <Form.Label>EndTime</Form.Label>
+                  <Form.Control type="time" placeholder="17:00" />
+                </Form.Group>
+              </Row>
+
+              <Button type="button" id="savePlaceButton">
+                  Save Place
+              </Button>
+            </Form>
+            </div>
+          )}
+
           const infowindow = new google.maps.InfoWindow({
-            content: element
+            content: renderToStaticMarkup(contentString())
           });
 
           marker.addListener("click", () => {
@@ -46,6 +76,18 @@ export default function GoogleMapSearchBar() {
               map,
             })
           });
+
+          google.maps.event.addListener(infowindow, 'domready', function() {
+            const elt = document.getElementById('savePlaceButton') as Element
+            elt.addEventListener("click", yourFucntionToCall);
+            function yourFucntionToCall() {
+              const locationStartTime = document.getElementById("locationStartTime") as HTMLInputElement;
+              const locationEndTime = document.getElementById("locationEndTime") as HTMLInputElement;
+              alert(locationStartTime.value)
+              // TODO create a layout and put it on the side
+            }
+          });
+
         }
       }
     }
