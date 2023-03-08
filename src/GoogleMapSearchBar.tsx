@@ -15,6 +15,12 @@ export default function GoogleMapSearchBar() {
     searchPlace(searchKeyWord.value, searchType.value)
   }
 
+  const clickSavePlace = (e: React.FormEvent) => {
+    e.preventDefault();
+    const searchKeyWord = document.getElementById("searchkeyWord") as HTMLInputElement
+    searchKeyWord.innerText = ""
+  }
+
   const searchPlace = (searchKeyWord: string, searchType: string) => {
     const searchCallBack = (placeResults_: google.maps.places.PlaceResult[] | null, status: google.maps.places.PlacesServiceStatus) => {
       if (status === google.maps.places.PlacesServiceStatus.OK) {
