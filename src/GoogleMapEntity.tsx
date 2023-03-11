@@ -15,11 +15,12 @@ function GoogleMapEntity() {
         )
     }
 
-    const googleMapsApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+    // const googleMapsApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: googleMapsApiKey,
         libraries: ['places']
     });
+
     
     if (!isLoaded) return <div>Loading</div>
     return <Map />;
