@@ -5,15 +5,25 @@ import reportWebVitals from './reportWebVitals';
 import GoogleMapSearchBar from './GoogleMapSearchBar';
 import MainPageGoogleMap from './MainPageGoogleMap';
 import UserExtraInputOptions from './UserExtraInputOptions';
+import SavedLocation from './SavedLocation';
+
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <GoogleMapSearchBar />
-    <MainPageGoogleMap />
-    <UserExtraInputOptions />
+    <Container>
+      <GoogleMapSearchBar />
+          <Row>
+            <Col ><MainPageGoogleMap /></Col>
+            <Col xs={6} md={4}><SavedLocation /></Col>
+          </Row>
+        <UserExtraInputOptions />
+    </Container>
   </React.StrictMode>
 );
 

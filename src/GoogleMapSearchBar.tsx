@@ -15,12 +15,6 @@ export default function GoogleMapSearchBar() {
     searchPlace(searchKeyWord.value, searchType.value)
   }
 
-  const clickSavePlace = (e: React.FormEvent) => {
-    e.preventDefault();
-    const searchKeyWord = document.getElementById("searchkeyWord") as HTMLInputElement
-    searchKeyWord.innerText = ""
-  }
-
   const searchPlace = (searchKeyWord: string, searchType: string) => {
     const searchCallBack = (placeResults_: google.maps.places.PlaceResult[] | null, status: google.maps.places.PlacesServiceStatus) => {
       if (status === google.maps.places.PlacesServiceStatus.OK) {
@@ -79,8 +73,8 @@ export default function GoogleMapSearchBar() {
 
           google.maps.event.addListener(infowindow, 'domready', function() {
             const elt = document.getElementById('savePlaceButton') as Element
-            elt.addEventListener("click", yourFucntionToCall);
-            function yourFucntionToCall() {
+            elt.addEventListener("click", saveLocation);
+            function saveLocation() {
               const locationStartTime = document.getElementById("locationStartTime") as HTMLInputElement;
               const locationEndTime = document.getElementById("locationEndTime") as HTMLInputElement;
               alert(locationStartTime.value)
@@ -103,7 +97,6 @@ export default function GoogleMapSearchBar() {
     service.textSearch(request, searchCallBack);
   }
   
-
 
   return (
     <Form onSubmit = {clickSearchGoogleMap}>
