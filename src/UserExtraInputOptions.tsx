@@ -10,13 +10,12 @@ export default function UserExtraInputOptions() {
     e.preventDefault();
   }
 
-
   return (
     <Form onSubmit={clickGenerateItinerary}>
       <Row className="mb-3">
         <Form.Group as={Col} controlId="formGridDays">
           <Form.Label>How many days is your trip?</Form.Label>
-          <Form.Control type="days" placeholder="3" />
+          <Form.Control required type="number" placeholder="1" value={num}  />
         </Form.Group>
       </Row>
 

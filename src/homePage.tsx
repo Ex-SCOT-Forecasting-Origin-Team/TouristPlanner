@@ -7,6 +7,12 @@ import GoogleMapSearchBar from './GoogleMapSearchBar';
 import MainPageGoogleMap from './MainPageGoogleMap';
 import UserExtraInputOptions from './UserExtraInputOptions';
 
+import SavedLocation from './SavedLocation';
+
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+
 function HomePage(){
     const navigate = useNavigate();
     const navigateToPage = () => {  
@@ -19,13 +25,17 @@ function HomePage(){
     
     return(
         <React.StrictMode>
-            <GoogleMapSearchBar></GoogleMapSearchBar> 
-            <MainPageGoogleMap></MainPageGoogleMap>
-            <UserExtraInputOptions></UserExtraInputOptions>
+        <Container>
+          <GoogleMapSearchBar />
+              <Row>
+                <Col ><MainPageGoogleMap /></Col>
+                <Col xs={6} md={4}><SavedLocation /></Col>
+              </Row>
+            <UserExtraInputOptions />
             <button onClick={() => navigateToPage()}>
                 View Itnerary
             </button>
-        </React.StrictMode>
+        </Container>
     );
 }
 
