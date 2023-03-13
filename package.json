@@ -46,6 +46,7 @@
     ]
   },
   "devDependencies": {
-    "@types/google.maps": "^3.50.5"
+    "@types/google.maps": "^3.50.5",
+    "@types/jquery": "^3.5.16"
   }
 }
