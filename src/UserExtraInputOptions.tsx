@@ -8,33 +8,43 @@ import Row from 'react-bootstrap/Row';
 export default function UserExtraInputOptions() {
   const clickGenerateItinerary = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const transportationType = document.getElementById("transportationType") as HTMLInputElement;
+    const formGridStartTime = document.getElementById("formGridStartTime0") as HTMLInputElement;
+    alert(`${transportationType.value} ${state["num"]} ${formGridStartTime.value}`)
+    // TODO combine this info with saved location for final output
   }
+
+  const [state, setState] = useState({"num": 0});
+
+  const startTimeEndTime = (i: number) => { return (
+    <Row className="mb-3">
+        <Form.Group as={Col} controlId={"formGridStartTime"+i.toString()}>
+          <Form.Label>StartTime{i}</Form.Label>
+          <Form.Control type="time" placeholder="09:00" />
+        </Form.Group>
+        <Form.Group as={Col} controlId={"formGridEndTime"+i.toString()}>
+          <Form.Label>EndTime{i}</Form.Label>
+          <Form.Control type="time" placeholder="17:00" />
+        </Form.Group>
+    </Row>
+  )}
 
   return (
     <Form onSubmit={clickGenerateItinerary}>
       <Row className="mb-3">
         <Form.Group as={Col} controlId="formGridDays">
           <Form.Label>How many days is your trip?</Form.Label>
-          <Form.Control required type="number" placeholder="1" value={num}  />
+          <Form.Control required type="number" placeholder="1" value={state["num"]} onChange={(e) => setState(prevState => { return {...prevState, "num": +e.target.value}})}/>
         </Form.Group>
       </Row>
 
-      <Row className="mb-3">
-        {/* https://developers.google.com/maps/documentation/places/web-service/supported_types */}
-        <Form.Group as={Col} controlId="formGridStartTime">
-          <Form.Label>StartTime</Form.Label>
-          <Form.Control type="time" placeholder="09:00" />
-        </Form.Group>
-        <Form.Group as={Col} controlId="formGridEndTime">
-          <Form.Label>EndTime</Form.Label>
-          <Form.Control type="time" placeholder="17:00" />
-        </Form.Group>
-      </Row>
+      { Array.from(Array(state["num"]).keys()).map(startTimeEndTime) }
 
       <Row className="mb-3">
         <Form.Group as={Col} controlId="formGridtype">
           <Form.Label>Transportation</Form.Label>
-          <Form.Select defaultValue="Public Transportation">
+          <Form.Select defaultValue="Public Transportation" id="transportationType">
             <option>Public Transportation</option>
             <option>Car</option>
           </Form.Select>
