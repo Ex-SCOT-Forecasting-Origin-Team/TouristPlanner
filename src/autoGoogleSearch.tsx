@@ -8,10 +8,10 @@ import { servicesVersion } from 'typescript';
 import { GoogleMap, useJsApiLoader , Marker} from "@react-google-maps/api";
 
 
-export default function autoGoogleSearch({searchKeyWord, searchType} : {searchKeyWord:string, searchType:string}) {
+export default function autoGoogleSearch(origin: string, destination: string, searchType: string) {
   const clickSearchGoogleMap = (e: React.FormEvent) => {
     e.preventDefault();
-    searchPlace(searchKeyWord, searchType)
+    searchPlace(destination, searchType)
   }
 
   const searchPlace = (searchKeyWord: string, searchType: string) => {

@@ -1,0 +1,43 @@
+{
+"day": {
+    "places": [{
+        "origin": {
+            "name": "The Spheres",
+            "lat": 47.6159,
+            "lng": 122.3394
+        },
+        "commute": {
+            "visitTime": 11,
+            "leaveTime": 12.5,
+            "commmuteMethod": "Car"
+        },
+        "destination": {
+            "name": "Space Needle",
+            "lat": 47.6205,
+            "lng": 122.3493,
+            "destinationOpen": 10,
+            "destinationClosed": 19
+        }
+    },
+    {
+        "origin": {
+            "name": "Space Needle",
+            "lat": 47.6205,
+            "lng": 122.3493
+        },
+        "commute": {
+            "visitTime": 11,
+            "leaveTime": 12.5,
+            "commmuteMethod": "Car"
+        },
+        "destination": {
+            "name": "Volunteer Park",
+            "lat": 47.6311,
+            "lng": 122.3164,
+            "destinationOpen": 10,
+            "destinationClosed": 19
+        }
+    }]
+}
+}
+  
