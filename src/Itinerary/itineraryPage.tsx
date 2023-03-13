@@ -7,7 +7,7 @@ import MainPageGoogleMap from '../MainPageGoogleMap';
 import UserExtraInputOptions from '../UserExtraInputOptions';
 import HomeButton from '../homeButton';
 
-function HomePage(){
+function ItineraryPage(){
     return(
         <div>
             <HomeButton></HomeButton>
@@ -19,4 +19,4 @@ function HomePage(){
     );
 }
 
-export default HomePage;
+export default ItineraryPage;
