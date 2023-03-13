@@ -20,6 +20,7 @@ function GoogleMapEntity() {
         googleMapsApiKey: googleMapsApiKey,
         libraries: ['places']
     });
+
     
     if (!isLoaded) return <div>Loading</div>
     return <Map />;
