@@ -5,7 +5,16 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 
+import { useSearchParams, useNavigate } from 'react-router-dom';
+
 export default function UserExtraInputOptions() {
+  const navigate = useNavigate();
+  const navigateToPage = () => {  
+      navigate({
+      pathname: "/Itinerary"
+      });
+  };;
+
   const clickGenerateItinerary = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -13,9 +22,11 @@ export default function UserExtraInputOptions() {
     const formGridStartTime = document.getElementById("formGridStartTime0") as HTMLInputElement;
     alert(`${transportationType.value} ${state["num"]} ${formGridStartTime.value}`)
     // TODO combine this info with saved location for final output
+    
+    navigateToPage()
   }
 
-  const [state, setState] = useState({"num": 0});
+  const [state, setState] = useState({"num": 1});
 
   const startTimeEndTime = (i: number) => { return (
     <Row className="mb-3">
@@ -35,7 +46,7 @@ export default function UserExtraInputOptions() {
       <Row className="mb-3">
         <Form.Group as={Col} controlId="formGridDays">
           <Form.Label>How many days is your trip?</Form.Label>
-          <Form.Control required type="number" placeholder="1" value={state["num"]} onChange={(e) => setState(prevState => { return {...prevState, "num": +e.target.value}})}/>
+          <Form.Control required type="number" value={state["num"]} onChange={(e) => setState(prevState => { return {...prevState, "num": +e.target.value}})}/>
         </Form.Group>
       </Row>
 
