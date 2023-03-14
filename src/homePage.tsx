@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './css/index.css';
 import reportWebVitals from './reportWebVitals';
 import GoogleMapSearchBar from './GoogleMapSearchBar';
@@ -14,27 +14,15 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 function HomePage(){
-    const navigate = useNavigate();
-    const navigateToPage = () => {  
-        navigate({
-        pathname: "/Itinerary"
-        });
-    };;
-
-    const [searchParams] = useSearchParams();
     
     return(
-        <React.StrictMode>
         <Container>
-          <GoogleMapSearchBar />
-              <Row>
+            <GoogleMapSearchBar />
+            <Row>
                 <Col ><MainPageGoogleMap /></Col>
                 <Col xs={6} md={4}><SavedLocation /></Col>
-              </Row>
+            </Row>
             <UserExtraInputOptions />
-            <button onClick={() => navigateToPage()}>
-                View Itnerary
-            </button>
         </Container>
     );
 }

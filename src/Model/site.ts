@@ -2,9 +2,9 @@
 class Site {
     name: string;
     coordinate: [number, number];
-    openingHours: google.maps.places.OpeningHoursPeriod[];
+    openingHours: google.maps.places.PlaceOpeningHoursPeriod[];
 
-    constructor(name: string, coordinate: [number, number], openingHours: google.maps.places.OpeningHoursPeriod[]) {
+    constructor(name: string, coordinate: [number, number], openingHours: google.maps.places.PlaceOpeningHoursPeriod[]) {
         this.name = name;
 
         this.coordinate = [0, 0];
