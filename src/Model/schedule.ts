@@ -1,12 +1,12 @@
 import { Site } from './site';
 
 class Schedule {
-    site: Site;
-    visitTime: Date;
-    leaveTime : Date;
+    private site: Site;
+    private visitTime: Date;
+    private leaveTime : Date;
 
     constructor(site: Site, visitTime: Date, leaveTime: Date) {
-        this.site = new Site(site.name, site.coordinate, site.openingHours);
+        this.site = new Site(site.getName(), site.getLatitude(), site.getLongitude(), site.getOpeningHours());
 
         this.visitTime = new Date(visitTime);
         this.leaveTime = new Date(leaveTime);
