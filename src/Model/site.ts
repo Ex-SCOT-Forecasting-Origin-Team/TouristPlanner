@@ -3,17 +3,21 @@ class Site {
     private name: string;
     private latitude: number;
     private longitude: number;
-    private openingHours: google.maps.places.OpeningHoursPeriod[];
+    private openingHours: google.maps.places.PlaceOpeningHoursPeriod[] | null;
 
-    constructor(name: string, lat: number, lng: number, openingHours: google.maps.places.OpeningHoursPeriod[]) {
+    constructor(name: string, lat: number, lng: number, openingHours: google.maps.places.PlaceOpeningHoursPeriod[] | null) {
         this.name = name;
 
         this.latitude = lat;
         this.longitude = lng;
 
-        this.openingHours = new Array(openingHours.length);
-        for (let day = 0; day < openingHours.length; ++day) {
-            this.openingHours[day] = openingHours[day];
+        if(openingHours === null){
+            this.openingHours = null;
+        } else {
+            this.openingHours = new Array(openingHours.length);
+            for (let day = 0; day < openingHours.length; ++day) {
+                this.openingHours[day] = openingHours[day];
+            }
         }
     }
 
@@ -26,7 +30,7 @@ class Site {
     public getLongitude(): number {
         return this.longitude;
     }
-    public getOpeningHours(): google.maps.places.OpeningHoursPeriod[] {
+    public getOpeningHours(): google.maps.places.PlaceOpeningHoursPeriod[] | null {
         return this.openingHours;
     }
 }
