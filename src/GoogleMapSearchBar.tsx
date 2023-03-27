@@ -4,10 +4,12 @@ import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
+import { parse } from 'date-fns';
 import { renderToStaticMarkup } from "react-dom/server"
+import { Site, LocationInfo } from "./locationClass"
 
 
-export default function GoogleMapSearchBar() {
+export default function GoogleMapSearchBar({savedLocation, setSavedLocation}: {savedLocation: LocationInfo[], setSavedLocation: (childState: Array<LocationInfo>) => void}) {
   const clickSearchGoogleMap = (e: React.FormEvent) => {
     e.preventDefault();
     const searchKeyWord = document.getElementById("searchkeyWord") as HTMLInputElement;
@@ -43,13 +45,13 @@ export default function GoogleMapSearchBar() {
             <Form>
 
               <Row className="mb-3">
-                <Form.Group as={Col} controlId="locationStartTime">
-                  <Form.Label>StartTime</Form.Label>
-                  <Form.Control type="time" placeholder="09:00" />
+                <Form.Group as={Col} controlId="startTime">
+                    <Form.Label>startTime</Form.Label>
+                    <Form.Control type="time"/>
                 </Form.Group>
-                <Form.Group as={Col} controlId="locationEndTime">
-                  <Form.Label>EndTime</Form.Label>
-                  <Form.Control type="time" placeholder="17:00" />
+                <Form.Group as={Col} controlId="endTime">
+                    <Form.Label>endTime</Form.Label>
+                    <Form.Control type="time"/>
                 </Form.Group>
               </Row>
 
@@ -75,10 +77,21 @@ export default function GoogleMapSearchBar() {
             const elt = document.getElementById('savePlaceButton') as Element
             elt.addEventListener("click", saveLocation);
             function saveLocation() {
-              const locationStartTime = document.getElementById("locationStartTime") as HTMLInputElement;
-              const locationEndTime = document.getElementById("locationEndTime") as HTMLInputElement;
-              alert(locationStartTime.value)
-              // TODO create a layout and put it on the side
+              const startTime = document.getElementById("startTime") as HTMLInputElement;
+              const endTime = document.getElementById("endTime") as HTMLInputElement;
+
+              const parsedStartTime = parse(startTime.value, 'hh:mm', new Date());
+              const parsedEndTime = parse(endTime.value, 'hh:mm', new Date());
+              let duration = (parsedEndTime.getTime() - parsedStartTime.getTime()) / 1000
+              if (isNaN(duration) || duration <= 0){
+                duration = 3600
+              }
+
+              const site = new Site(placeResult.name as String, latlng);
+              const newLocation = new LocationInfo(startTime.value, duration, site);
+
+              savedLocation.push(newLocation)
+              setSavedLocation(savedLocation)
             }
           });
 
