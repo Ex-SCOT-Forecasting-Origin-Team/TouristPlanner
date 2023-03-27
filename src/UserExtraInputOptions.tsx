@@ -6,8 +6,9 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Site, LocationInfo } from "./locationClass"
 
-export default function UserExtraInputOptions() {
+export default function UserExtraInputOptions({savedLocation}: {savedLocation: LocationInfo[]}) {
   const navigate = useNavigate();
   const navigateToPage = () => {  
       navigate({
@@ -18,11 +19,29 @@ export default function UserExtraInputOptions() {
   const clickGenerateItinerary = (e: React.FormEvent) => {
     e.preventDefault();
 
+    let HomePageInput: any = {};
+    HomePageInput.stayDurationEachDay = Array.from(Array(state["num"]).keys()).map((i:number) => {
+      let formGridStartTime = "10:00";
+      let formGridEndTime = "20:00";
+      const formGridStartTimeElt = document.getElementById("formGridStartTime"+i.toString()) as HTMLInputElement;
+      const formGridEndTimeElt = document.getElementById("formGridEndTime"+i.toString()) as HTMLInputElement;
+      if(formGridStartTimeElt.value != ""){
+        formGridStartTime = formGridStartTimeElt.value;
+      }
+      if(formGridEndTimeElt.value != ""){
+        formGridEndTime = formGridEndTimeElt.value;
+      }
+
+      return [formGridStartTime, formGridEndTime]
+    }) 
+
     const transportationType = document.getElementById("transportationType") as HTMLInputElement;
-    const formGridStartTime = document.getElementById("formGridStartTime0") as HTMLInputElement;
-    alert(`${transportationType.value} ${state["num"]} ${formGridStartTime.value}`)
-    // TODO combine this info with saved location for final output
-    
+    HomePageInput.transportationType = transportationType.value
+
+    HomePageInput.constraints = savedLocation
+
+    console.log(HomePageInput)
+
     navigateToPage()
   }
 
@@ -31,12 +50,12 @@ export default function UserExtraInputOptions() {
   const startTimeEndTime = (i: number) => { return (
     <Row className="mb-3">
         <Form.Group as={Col} controlId={"formGridStartTime"+i.toString()}>
-          <Form.Label>StartTime{i}</Form.Label>
-          <Form.Control type="time" placeholder="09:00" />
+          <Form.Label>StartTime{i+1}</Form.Label>
+          <Form.Control type="time"/>
         </Form.Group>
         <Form.Group as={Col} controlId={"formGridEndTime"+i.toString()}>
-          <Form.Label>EndTime{i}</Form.Label>
-          <Form.Control type="time" placeholder="17:00" />
+          <Form.Label>EndTime{i+1}</Form.Label>
+          <Form.Control type="time"/>
         </Form.Group>
     </Row>
   )}

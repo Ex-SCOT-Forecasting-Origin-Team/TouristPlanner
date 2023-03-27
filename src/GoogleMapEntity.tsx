@@ -6,10 +6,10 @@ function GoogleMapEntity() {
     function Map() {
         return (
             <GoogleMap
-                zoom={10}
+                zoom={12}
                 mapContainerClassName="map-container"
                 id='map'
-                center={{ lat: 20, lng: 10}}
+                center={{ lat: 47.62, lng: -122.203}}
             >
             </GoogleMap> 
         )
