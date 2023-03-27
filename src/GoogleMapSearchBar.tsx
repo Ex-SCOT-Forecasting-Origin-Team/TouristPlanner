@@ -6,10 +6,11 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import { parse } from 'date-fns';
 import { renderToStaticMarkup } from "react-dom/server"
-import { Site, LocationInfo } from "./locationClass"
+import { Constraint  } from "./Model/constraint"
+import { Site  } from "./Model/site"
 
 
-export default function GoogleMapSearchBar({savedLocation, setSavedLocation}: {savedLocation: LocationInfo[], setSavedLocation: (childState: Array<LocationInfo>) => void}) {
+export default function GoogleMapSearchBar({savedLocation, setSavedLocation}: {savedLocation: Constraint[], setSavedLocation: (childState: Array<Constraint>) => void}) {
   const clickSearchGoogleMap = (e: React.FormEvent) => {
     e.preventDefault();
     const searchKeyWord = document.getElementById("searchkeyWord") as HTMLInputElement;
@@ -87,8 +88,8 @@ export default function GoogleMapSearchBar({savedLocation, setSavedLocation}: {s
                 duration = 3600
               }
 
-              const site = new Site(placeResult.name as String, latlng);
-              const newLocation = new LocationInfo(startTime.value, duration, site);
+              const site = new Site(placeResult.name as String, latlng, null);
+              const newLocation = new Constraint(site, startTime.value, duration);
 
               savedLocation.push(newLocation)
               setSavedLocation(savedLocation)
