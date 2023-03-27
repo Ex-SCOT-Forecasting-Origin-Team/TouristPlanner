@@ -5,7 +5,7 @@ import './css/index.css';
 import GoogleMapSearchBar from './GoogleMapSearchBar';
 import MainPageGoogleMap from './MainPageGoogleMap';
 import UserExtraInputOptions from './UserExtraInputOptions';
-import { Site, LocationInfo } from "./locationClass"
+import { Constraint  } from "./Model/constraint"
 import SavedLocations from './SavedLocations';
 
 import Container from 'react-bootstrap/Container';
@@ -14,9 +14,9 @@ import Col from 'react-bootstrap/Col';
 
 function HomePage(){
     
-    const [savedLocation, setSavedLocation] = useState<Array<LocationInfo>>([]);
+    const [savedLocation, setSavedLocation] = useState<Array<Constraint>>([]);
     const [seed, setSeed] = useState(1);
-    const handleSetSavedLocation = (childState: Array<LocationInfo>) => {
+    const handleSetSavedLocation = (childState: Array<Constraint>) => {
         setSavedLocation(childState)
         setSeed(Math.random())
     }

@@ -6,9 +6,9 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Site, LocationInfo } from "./locationClass"
+import { Constraint  } from "./Model/constraint"
 
-export default function UserExtraInputOptions({savedLocation}: {savedLocation: LocationInfo[]}) {
+export default function UserExtraInputOptions({savedLocation}: {savedLocation: Constraint[]}) {
   const navigate = useNavigate();
   const navigateToPage = () => {  
       navigate({

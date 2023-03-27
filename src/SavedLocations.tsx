@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import Accordion from 'react-bootstrap/Accordion';
-import { LocationInfo } from "./locationClass"
+import { Constraint  } from "./Model/constraint"
 
-function SavedLocations({savedLocation, seed}: {savedLocation: LocationInfo[], seed: number}) {
+function SavedLocations({savedLocation, seed}: {savedLocation: Constraint[], seed: number}) {
   const SavedLocation = (i: number) => {
     return (
       <Accordion defaultActiveKey="{i}">
       <Accordion.Item eventKey="{i}">
-        <Accordion.Header> {i+1}. {savedLocation[i].site.name}</Accordion.Header>
+        <Accordion.Header> {i+1}. {savedLocation[i].getSite().getName()}</Accordion.Header>
         <Accordion.Body>
-          {"visitTime : "+savedLocation[i].visitTime} <br></br>
-          {"duration : "+savedLocation[i].duration} <br></br>
-          {"coordinate : "+savedLocation[i].site.coordinate} <br></br>
+          {"visitTime : "+savedLocation[i].getVisitTime()} <br></br>
+          {"duration : "+savedLocation[i].getDuration()} <br></br>
+          {"coordinate : "+savedLocation[i].getSite().getCoordinate()} <br></br>
         </Accordion.Body>
       </Accordion.Item>
     </Accordion>
