@@ -6,6 +6,7 @@ import { Day } from './day';
 import { GoogleMap, useJsApiLoader , useLoadScript, MarkerF, InfoWindow, } from "@react-google-maps/api";
 import axios from 'axios';
 import itinerary from './fakeData.json'
+import '../css/Itinerary.css'
 // import './css/GoogleMapEntity.css'
 
 interface itinerary {
@@ -142,9 +143,12 @@ function ItineraryPage(){
             }}>
                     Previous Day
             </button>
-
-            <div id="directions-panel"></div>
-            <MainPageGoogleMap></MainPageGoogleMap>
+            <div className="container">
+                <div className='maps'> 
+                    <MainPageGoogleMap></MainPageGoogleMap>
+                </div>
+                <div className="directions" id="directions-panel"></div>
+            </div>
             </React.StrictMode>
         </div>
 

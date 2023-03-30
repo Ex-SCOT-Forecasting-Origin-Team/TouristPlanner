@@ -1,0 +1,16 @@
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .maps {
+    width: 80%;
+    padding: 10px;
+  }
+  
+  .directions {
+    width: 20%;
+    padding: 10px;
+    margin-top: 20px;
+  }
+  
