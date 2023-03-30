@@ -109,12 +109,6 @@ function ItineraryPage(){
                 // For each route, display summary information.
                 for (let i = 0; i < route.legs.length; i++) {
                     const steps = route.legs[i].steps;
-                    steps.forEach((step) => {
-                        summaryPanel.innerHTML += step.instructions;
-                        summaryPanel.innerHTML += step.distance;
-                        // console.log(step.instructions);
-                        // console.log(step.distance);
-                      });
                     const routeSegment = i + 1;
 
                     summaryPanel.innerHTML +=
@@ -122,6 +116,10 @@ function ItineraryPage(){
                     summaryPanel.innerHTML += route.legs[i].start_address + " to ";
                     summaryPanel.innerHTML += route.legs[i].end_address + "<br>";
                     summaryPanel.innerHTML += route.legs[i].distance!.text + "<br><br>";
+                    steps.forEach((step) => {
+                        summaryPanel.innerHTML += step.instructions + "  ";
+                        summaryPanel.innerHTML += step.distance!.text  + "<br>";
+                      });
                 }
             }
             else{
