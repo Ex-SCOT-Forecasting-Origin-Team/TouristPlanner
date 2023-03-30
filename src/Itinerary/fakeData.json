@@ -1,43 +1,75 @@
 {
-"day": {
-    "places": [{
-        "origin": {
-            "name": "The Spheres",
-            "lat": 47.6159,
-            "lng": 122.3394
+    "day": [{
+        "places": [{
+            "origin": {
+                "name": "HiltonGardenInnSeattleDowntown",
+                "lat": 47.6159,
+                "lng": 122.3394
+            },
+            "commute": {
+                "visitTime": 11,
+                "leaveTime": 12.5,
+                "commmuteMethod": "Car"
+            },
+            "destination": {
+                "name": "SpaceNeedle",
+                "lat": 47.6205,
+                "lng": 122.3493
+            }
         },
-        "commute": {
-            "visitTime": 11,
-            "leaveTime": 12.5,
-            "commmuteMethod": "Car"
+        {
+            "origin": {
+                "name": "SpaceNeedle",
+                "lat": 47.6159,
+                "lng": 122.3394
+            },
+            "commute": {
+                "visitTime": 11,
+                "leaveTime": 12.5,
+                "commmuteMethod": "Car"
+            },
+            "destination": {
+                "name": "LumenField",
+                "lat": 47.6205,
+                "lng": 122.3493
+            }
         },
-        "destination": {
-            "name": "Space Needle",
-            "lat": 47.6205,
-            "lng": 122.3493,
-            "destinationOpen": 10,
-            "destinationClosed": 19
-        }
+        {
+            "origin": {
+                "name": "LumenField",
+                "lat": 47.6205,
+                "lng": 122.3493
+            },
+            "commute": {
+                "visitTime": 12.5,
+                "leaveTime": 14,
+                "commmuteMethod": "Car"
+            },
+            "destination": {
+                "name": "GasWorksPark",
+                "lat": 47.6311,
+                "lng": 122.3164
+            }
+        }]
     },
     {
-        "origin": {
-            "name": "Space Needle",
-            "lat": 47.6205,
-            "lng": 122.3493
-        },
-        "commute": {
-            "visitTime": 11,
-            "leaveTime": 12.5,
-            "commmuteMethod": "Car"
-        },
-        "destination": {
-            "name": "Volunteer Park",
-            "lat": 47.6311,
-            "lng": 122.3164,
-            "destinationOpen": 10,
-            "destinationClosed": 19
-        }
-    }]
+        "places": [{
+            "origin": {
+                "name": "Hilton Garden Inn Seattle Downtown",
+                "lat": 47.6159,
+                "lng": 122.3394
+            },
+            "commute": {
+                "visitTime": 11,
+                "leaveTime": 12.5,
+                "commmuteMethod": "Car"
+            },
+            "destination": {
+                "name": "T-Moblie Park",
+                "lat": 47.6205,
+                "lng": 122.3493
+            }
+        }]
+    }
+  ]
 }
-}
-  
