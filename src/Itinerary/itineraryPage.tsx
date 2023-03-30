@@ -98,15 +98,23 @@ function ItineraryPage(){
         if (status == 'OK') {
             directionsRenderer.setDirections(response);
             if(response != null){
+                console.log(response.routes.length)
                 const route = response.routes[0];
                 const summaryPanel = document.getElementById(
                     "directions-panel"
                 ) as HTMLElement;
-
+                
                 summaryPanel.innerHTML = "";
 
                 // For each route, display summary information.
                 for (let i = 0; i < route.legs.length; i++) {
+                    const steps = route.legs[i].steps;
+                    steps.forEach((step) => {
+                        summaryPanel.innerHTML += step.instructions;
+                        summaryPanel.innerHTML += step.distance;
+                        // console.log(step.instructions);
+                        // console.log(step.distance);
+                      });
                     const routeSegment = i + 1;
 
                     summaryPanel.innerHTML +=
