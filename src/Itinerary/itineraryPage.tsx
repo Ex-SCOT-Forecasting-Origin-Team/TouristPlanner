@@ -116,10 +116,16 @@ function ItineraryPage(){
                     summaryPanel.innerHTML += route.legs[i].start_address + " to ";
                     summaryPanel.innerHTML += route.legs[i].end_address + "<br>";
                     summaryPanel.innerHTML += route.legs[i].distance!.text + "<br><br>";
-                    steps.forEach((step) => {
-                        summaryPanel.innerHTML += step.instructions + "  ";
-                        summaryPanel.innerHTML += step.distance!.text  + "<br>";
-                      });
+                    for(let step = 0; step < steps.length; step++){
+                        summaryPanel.innerHTML += steps[step].instructions + "  ";
+                        const distanceInMeters = steps[step].distance!.value;
+                        const distanceInKilometers = distanceInMeters / 1000;
+                        if(step != steps.length -1){
+                            summaryPanel.innerHTML += distanceInKilometers + " miles"  + "<br><br>";
+                        }else{
+                            summaryPanel.innerHTML +="<br>";
+                        }
+                    }
                 }
             }
             else{
