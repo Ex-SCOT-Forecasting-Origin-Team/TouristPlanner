@@ -70,7 +70,7 @@ function ItineraryPage(){
         <div>
             <HomeButton></HomeButton>
             <React.StrictMode>
-                <MainPageGoogleMap></MainPageGoogleMap>
+                {/* <MainPageGoogleMap></MainPageGoogleMap> */}
             </React.StrictMode>
         </div>
         

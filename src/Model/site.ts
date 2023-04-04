@@ -28,6 +28,14 @@ class Site {
     public getOpeningHours(): google.maps.places.PlaceOpeningHoursPeriod[] | null {
         return this.openingHours;
     }
+
+    public getLatitude(): Number {
+        return this.coordinate.lat();
+    }
+
+    public getLongitude(): Number {
+        return this.coordinate.lng();
+    }
 }
 
 export { Site };
