@@ -25,8 +25,8 @@ function HomePage(){
         <Container>
             <GoogleMapSearchBar savedLocation={savedLocation} setSavedLocation={handleSetSavedLocation}/>
             <Row>
-                <Col ><MainPageGoogleMap /></Col>
-                <Col xs={6} md={4}><SavedLocations savedLocation={savedLocation} seed={seed}/></Col>
+                <Col ><MainPageGoogleMap savedLocation={savedLocation}/></Col>
+                <Col xs={6} md={4}><SavedLocations savedLocation={savedLocation} seed={seed} setSavedLocation={handleSetSavedLocation}/></Col>
             </Row>
             <UserExtraInputOptions savedLocation={savedLocation}/>
         </Container>

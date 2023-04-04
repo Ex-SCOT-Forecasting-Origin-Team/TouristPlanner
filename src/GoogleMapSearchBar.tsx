@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -21,6 +21,7 @@ export default function GoogleMapSearchBar({savedLocation, setSavedLocation}: {s
   const searchPlace = (searchKeyWord: string, searchType: string) => {
     const searchCallBack = (placeResults_: google.maps.places.PlaceResult[] | null, status: google.maps.places.PlacesServiceStatus) => {
       if (status === google.maps.places.PlacesServiceStatus.OK) {
+        
         let placeResults = placeResults_ as google.maps.places.PlaceResult[];
         const firstlocation = placeResults[0].geometry as google.maps.places.PlaceGeometry
         const firstlatlng = firstlocation.location as google.maps.LatLng
@@ -29,8 +30,16 @@ export default function GoogleMapSearchBar({savedLocation, setSavedLocation}: {s
             center: firstlatlng,
         });
 
+        console.log(placeResults[0])
+        for (let idx=0; idx<savedLocation.length; idx++){
+          const marker = new google.maps.Marker({
+            position: savedLocation[idx].getSite().getCoordinate(),
+            map: map,
+            label: (idx+1).toString()
+          });
+        }
+
         for (let idx = 0; idx < placeResults.length; idx++){
-          console.log(placeResults[idx])
           const placeResult = placeResults[idx]
           const location = placeResult.geometry as google.maps.places.PlaceGeometry
           const latlng = location.location as google.maps.LatLng
@@ -88,7 +97,12 @@ export default function GoogleMapSearchBar({savedLocation, setSavedLocation}: {s
                 duration = 3600
               }
 
-              const site = new Site(placeResult.name as String, latlng, null);
+              let opening_hours: null | google.maps.places.PlaceOpeningHoursPeriod[] = null
+              if(placeResult.opening_hours != undefined && placeResult.opening_hours.periods != undefined){
+                opening_hours = placeResult.opening_hours.periods as google.maps.places.PlaceOpeningHoursPeriod[]
+              } 
+
+              const site = new Site(placeResult.name as String, latlng, opening_hours);
               const newLocation = new Constraint(site, startTime.value, duration);
 
               savedLocation.push(newLocation)
@@ -101,14 +115,12 @@ export default function GoogleMapSearchBar({savedLocation, setSavedLocation}: {s
     }
 
     let request = {
-      type: searchType,
       query: searchKeyWord,
-      radius: 50000,
-      location: new google.maps.LatLng(-34, 151)
+      fields: ["ALL"]
     };
 
     let service = new window.google.maps.places.PlacesService(document.getElementById('map2') as HTMLDivElement);
-    service.textSearch(request, searchCallBack);
+    service.findPlaceFromQuery(request, searchCallBack);
   }
   
 

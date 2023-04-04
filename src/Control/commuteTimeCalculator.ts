@@ -56,10 +56,13 @@ function getRequest(method: google.maps.TravelMode, origin: Site, destinations: 
     }
 
     return {
-        origins: [{
-            lat: origin.getLatitude(), 
-            lng: origin.getLongitude()
-        }],
+        // origins: [{
+        //     lat: origin.getLatitude(), 
+        //     lng: origin.getLongitude()
+        // }],
+        origins: [
+          origin.getCoordinate()
+        ],
         destinations: destLatLng,
         travelMode: method,
         unitSystem: google.maps.UnitSystem.METRIC,
