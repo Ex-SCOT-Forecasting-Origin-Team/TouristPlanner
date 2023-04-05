@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader , useLoadScript, MarkerF, InfoWindow, } from "@react-google-maps/api";
-import './css/GoogleMapEntity.css'
+// import './css/GoogleMapEntity.css'
 import GoogleMapEntity from './GoogleMapEntity';
 import { Constraint  } from "./Model/constraint"
 
