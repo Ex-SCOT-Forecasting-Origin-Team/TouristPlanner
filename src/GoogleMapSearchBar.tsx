@@ -14,14 +14,8 @@ export default function GoogleMapSearchBar({savedLocation, setSavedLocation}: {s
   const clickSearchGoogleMap = (e: React.FormEvent) => {
     e.preventDefault();
     const searchKeyWord = document.getElementById("searchkeyWord") as HTMLInputElement;
-    const searchType = document.getElementById("searchType") as HTMLInputElement;
-    searchPlace(searchKeyWord.value, searchType.value)
-  }
-
-  const searchPlace = (searchKeyWord: string, searchType: string) => {
     const searchCallBack = (placeResults_: google.maps.places.PlaceResult[] | null, status: google.maps.places.PlacesServiceStatus) => {
       if (status === google.maps.places.PlacesServiceStatus.OK) {
-        
         let placeResults = placeResults_ as google.maps.places.PlaceResult[];
         const firstlocation = placeResults[0].geometry as google.maps.places.PlaceGeometry
         const firstlatlng = firstlocation.location as google.maps.LatLng
@@ -30,7 +24,6 @@ export default function GoogleMapSearchBar({savedLocation, setSavedLocation}: {s
             center: firstlatlng,
         });
 
-        console.log(placeResults[0])
         for (let idx=0; idx<savedLocation.length; idx++){
           const marker = new google.maps.Marker({
             position: savedLocation[idx].getSite().getCoordinate(),
@@ -115,14 +108,13 @@ export default function GoogleMapSearchBar({savedLocation, setSavedLocation}: {s
     }
 
     let request = {
-      query: searchKeyWord,
+      query: searchKeyWord.value,
       fields: ["ALL"]
     };
 
-    let service = new window.google.maps.places.PlacesService(document.getElementById('map2') as HTMLDivElement);
+    let service = new window.google.maps.places.PlacesService(document.getElementById('map') as HTMLDivElement);
     service.findPlaceFromQuery(request, searchCallBack);
   }
-  
 
   return (
     <Form onSubmit = {clickSearchGoogleMap}>
@@ -130,15 +122,6 @@ export default function GoogleMapSearchBar({savedLocation, setSavedLocation}: {s
         <Form.Group as={Col}>
           <Form.Label>Place</Form.Label>
           <Form.Control name="searchkeyWord" type="searchKeyWord" id="searchkeyWord" placeholder="Search Google Map"/>
-        </Form.Group>
-
-        {/* https://developers.google.com/maps/documentation/places/web-service/supported_types */}
-        <Form.Group as={Col}>
-          <Form.Label>Location Type</Form.Label>
-          <Form.Select defaultValue="tourist_attraction" id="searchType">
-            <option>tourist_attraction</option>
-            <option>restaurant</option>
-          </Form.Select>
         </Form.Group>
       </Row>
 

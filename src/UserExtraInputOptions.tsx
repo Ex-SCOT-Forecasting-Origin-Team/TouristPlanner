@@ -50,11 +50,11 @@ export default function UserExtraInputOptions({savedLocation}: {savedLocation: C
   const startTimeEndTime = (i: number) => { return (
     <Row className="mb-3">
         <Form.Group as={Col} controlId={"formGridStartTime"+i.toString()}>
-          <Form.Label>StartTime{i+1}</Form.Label>
+          <Form.Label>StartTime {i+1}</Form.Label>
           <Form.Control type="time"/>
         </Form.Group>
         <Form.Group as={Col} controlId={"formGridEndTime"+i.toString()}>
-          <Form.Label>EndTime{i+1}</Form.Label>
+          <Form.Label>EndTime {i+1}</Form.Label>
           <Form.Control type="time"/>
         </Form.Group>
     </Row>
