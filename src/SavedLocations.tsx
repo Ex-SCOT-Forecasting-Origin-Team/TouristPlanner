@@ -12,8 +12,7 @@ function SavedLocations({savedLocation, seed, setSavedLocation}: {savedLocation:
 
   const SavedLocation = (i: number) => {
     return (
-      <Accordion defaultActiveKey="{i}">
-      <Accordion.Item eventKey="{i}">
+      <Accordion.Item eventKey={i.toString()}>
         <Accordion.Header> {i+1}. {savedLocation[i].getSite().getName()}</Accordion.Header>
         <Accordion.Body>
           {"visitTime : "+savedLocation[i].getVisitTime()} <br></br>
@@ -26,13 +25,14 @@ function SavedLocations({savedLocation, seed, setSavedLocation}: {savedLocation:
           </Form>
         </Accordion.Body>
       </Accordion.Item>
-    </Accordion>
     )
   }
 
   return (
     <div>
-      { Array.from(Array(savedLocation.length).keys()).map(SavedLocation) }
+      <Accordion>
+        { Array.from(Array(savedLocation.length).keys()).map(SavedLocation) }
+      </Accordion>
     </div>
   );
 }

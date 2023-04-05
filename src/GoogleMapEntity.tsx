@@ -11,7 +11,7 @@ function GoogleMapEntity() {
                 id='map'
                 center={{ lat: 47.62, lng: -122.203}}
             >
-            </GoogleMap> 
+            </GoogleMap>
         )
     }
 
