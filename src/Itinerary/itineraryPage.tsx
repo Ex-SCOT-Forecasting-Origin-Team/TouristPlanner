@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../css/index.css';
-import MainPageGoogleMap from '../MainPageGoogleMap';
+import ItineraryPageGoogleMap from './itineraryPageGoogleMap';
 import HomeButton from '../homeButton';
 import { Day } from './day';
 import { GoogleMap, useJsApiLoader , useLoadScript, MarkerF, InfoWindow, } from "@react-google-maps/api";
@@ -157,7 +157,7 @@ function ItineraryPage(){
             </button>
             <div className="container">
                 <div className='maps'> 
-                    <MainPageGoogleMap></MainPageGoogleMap>
+                    <ItineraryPageGoogleMap></ItineraryPageGoogleMap>
                 </div>
                 <div className="directions" id="directions-panel"></div>
             </div>
