@@ -27,7 +27,8 @@ function ItineraryPage(){
 
     useEffect(() => {
         console.log("Starting onLoad")
-        previousDayButton.current?.click();
+        setDay(new Day(itinerary.day.length))
+        console.log(day.day)
         console.log("Finished onLoad")
     }, []);
 
@@ -45,20 +46,17 @@ function ItineraryPage(){
     }
 
     function handleClickNextDay() {
-        day.nextDay(); // call nextDay function to update day
         console.log("Next Button Clicked")
-        console.log("Day: " + day.day)
+        day.nextDay(); // call nextDay function to update day
     }
 
     function handleClickPreviousDay() {
-        day.previousDay(); // call previousDay function to update day
-        initMap();
         console.log("Previous Button Clicked")
+        day.previousDay(); // call previousDay function to update day
         console.log("Day: " + day.day)
     }
 
     function initMap() {
-        console.log("InitMap")
         const directionsService = new google.maps.DirectionsService();
         const directionsRenderer = new google.maps.DirectionsRenderer();
         var defaultLocation = new google.maps.LatLng(45.6720, 122.6681);
@@ -98,7 +96,6 @@ function ItineraryPage(){
         if (status == 'OK') {
             directionsRenderer.setDirections(response);
             if(response != null){
-                console.log(response.routes.length)
                 const route = response.routes[0];
                 const summaryPanel = document.getElementById(
                     "directions-panel"
