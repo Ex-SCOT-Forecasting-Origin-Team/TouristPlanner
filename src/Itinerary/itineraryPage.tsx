@@ -5,17 +5,11 @@ import HomeButton from '../homeButton';
 import { Day } from './day';
 import { GoogleMap, useJsApiLoader , useLoadScript, MarkerF, InfoWindow, } from "@react-google-maps/api";
 import axios from 'axios';
+import { DirectionsRequest } from './directionsRequest';
 import itinerary from './fakeData.json'
 import '../css/Itinerary.css'
+import { render } from '@testing-library/react';
 // import './css/GoogleMapEntity.css'
-
-interface itinerary {
-    day: [];
-    place: [];
-    origin: string;
-    commute: string;
-    destination: string;
-}
 
 function ItineraryPage(){
     const [day, setDay] = useState(new Day(itinerary.day.length));
@@ -32,14 +26,14 @@ function ItineraryPage(){
         console.log("Finished onLoad")
     }, []);
 
-    function getTravelMethod(itinerary: { day: { places: { origin: { name: string; lat: number; lng: number; }; commute: { visitTime: number; leaveTime: number; commmuteMethod: string; }; destination: { name: string; lat: number; lng: number;}; }[]; }[]; ""?: any; }, currDay: number) {
-        if (itinerary.day[currDay].places[0].commute.commmuteMethod == "DRIVING")            
+    function getTravelMethod(itinerary: { day: { places: { origin: { name: string; lat: number; lng: number; }; commute: { visitTime: number; leaveTime: number; commmuteMethod: string; }; destination: { name: string; lat: number; lng: number;}; }[]; }[]; ""?: any; }, currDay: number, place: number) {
+        if (itinerary.day[currDay].places[place].commute.commmuteMethod == "DRIVING")            
             return google.maps.TravelMode.DRIVING
-        else if (itinerary.day[currDay].places[0].commute.commmuteMethod == "WALKING")            
+        else if (itinerary.day[currDay].places[place].commute.commmuteMethod == "WALKING")            
             return google.maps.TravelMode.WALKING
-        else if (itinerary.day[currDay].places[0].commute.commmuteMethod == "BUS" || 
-            itinerary.day[currDay].places[0].commute.commmuteMethod == "TRAIN" || 
-            itinerary.day[currDay].places[0].commute.commmuteMethod == "SUBWAY") 
+        else if (itinerary.day[currDay].places[place].commute.commmuteMethod == "BUS" || 
+            itinerary.day[currDay].places[place].commute.commmuteMethod == "TRAIN" || 
+            itinerary.day[currDay].places[place].commute.commmuteMethod == "SUBWAY") 
                 return google.maps.TravelMode.TRANSIT
 
         else return google.maps.TravelMode.WALKING
@@ -65,74 +59,73 @@ function ItineraryPage(){
             center: defaultLocation
         });
 
-        directionsRenderer.setMap(map);
-
+        var renderers: google.maps.DirectionsRenderer[] = [];
+        var requests: DirectionsRequest[] = []
         const numPlaces = Object.keys(itinerary.day[day.day].places).length;
 
-        const waypoints = []
-        var start = itinerary.day[day.day].places[0].origin.name;
-        var end = itinerary.day[day.day].places[numPlaces-1].destination.name;
-
-        stepDisplay = new google.maps.InfoWindow();
-
-        for(let currPlace = 0; currPlace < numPlaces -1; currPlace++){
-            console.log("Searching destination");
+        for(let currPlace = 0; currPlace < numPlaces; currPlace++){         
             var stop = {
-                location: itinerary.day[day.day].places[currPlace].destination.name,
-                stopover: true
+                origin: itinerary.day[day.day].places[currPlace].origin.name,
+                destination: itinerary.day[day.day].places[currPlace].destination.name,
+                transitOptions: {
+                    departureTime: new Date(itinerary.day[day.day].places[currPlace].commute.visitTime),
+                },
+                travelMode: getTravelMethod(itinerary, day.day, currPlace)
             }
-            waypoints.push(stop)
+            requests.push(stop)
         } 
+        
+        const directions: any[] = [];
 
-        var request = {
-            origin: start,
-            destination: end,
-            waypoints: waypoints,
-            travelMode: getTravelMethod(itinerary, day.day), 
-            unitSystem: google.maps.UnitSystem.METRIC
-        };
+        for (let i = 0; i < requests.length; i++) {
+            const renderer = new google.maps.DirectionsRenderer();
+            renderer.setMap(map);
+            renderers.push(renderer);
+            
+            directionsService.route(requests[i], (result, status) => {
+              if (status == 'OK') {
+                directions.push(result);
+                renderers[i].setDirections(result);
+              }
+            });
+        }
+        
+        console.log(directions)
+        console.log(directions[0])
+        console.log(directions.length)
+        for(let i = 0; i < directions.length; i++){
+            const route = directions[i];
+            console.log("here", route)
+            const summaryPanel = document.getElementById(
+                "directions-panel"
+            ) as HTMLElement;
+            summaryPanel.innerHTML = "";
+            // For each route, display summary information.
+            for (let i = 0; i < route.legs.length; i++) {
+                const steps = route.legs[i].steps;
+                const routeSegment = i + 1;
 
-        directionsService.route(request, function(response, status) {
-        if (status == 'OK') {
-            directionsRenderer.setDirections(response);
-            if(response != null){
-                const route = response.routes[0];
-                const summaryPanel = document.getElementById(
-                    "directions-panel"
-                ) as HTMLElement;
-                
-                summaryPanel.innerHTML = "";
-
-                // For each route, display summary information.
-                for (let i = 0; i < route.legs.length; i++) {
-                    const steps = route.legs[i].steps;
-                    const routeSegment = i + 1;
-
-                    summaryPanel.innerHTML +=
-                    "<b>Route Segment: " + routeSegment + "</b><br>";
-                    summaryPanel.innerHTML += route.legs[i].start_address + " to ";
-                    summaryPanel.innerHTML += route.legs[i].end_address + "<br>";
-                    summaryPanel.innerHTML += route.legs[i].distance!.text + "<br><br>";
-                    for(let step = 0; step < steps.length; step++){
-                        summaryPanel.innerHTML += steps[step].instructions + "  ";
-                        const distanceInMeters = steps[step].distance!.value;
-                        const distanceInKilometers = distanceInMeters / 1000;
-                        if(step != steps.length -1){
-                            summaryPanel.innerHTML += distanceInKilometers + " miles"  + "<br><br>";
-                        }else{
-                            summaryPanel.innerHTML +="<br>";
-                        }
+                summaryPanel.innerHTML +=
+                "<b>Route Segment: " + routeSegment + "</b><br>";
+                summaryPanel.innerHTML += route.legs[i].start_address + " to ";
+                summaryPanel.innerHTML += route.legs[i].end_address + "<br>";
+                summaryPanel.innerHTML += route.legs[i].distance!.text + "<br><br>";
+                for(let step = 0; step < steps.length; step++){
+                    summaryPanel.innerHTML += steps[step].instructions + "  ";
+                    const distanceInMeters = steps[step].distance!.value;
+                    const distanceInKilometers = distanceInMeters / 1000;
+                    if(step != steps.length -1){
+                        summaryPanel.innerHTML += distanceInKilometers + " miles"  + "<br><br>";
+                    }else{
+                        summaryPanel.innerHTML +="<br>";
                     }
                 }
             }
-            else{
-                console.log("Error in Response")
-            }
         }
-        else{
-            console.log("Error in Status")
-        }
-        });
+
+        directionsRenderer.setMap(map);
+
+        stepDisplay = new google.maps.InfoWindow();
     }
 
     return(
