@@ -1,32 +1,30 @@
 
 class Site {
-    private name: string;
-    private latitude: number;
-    private longitude: number;
-    private openingHours: google.maps.places.OpeningHoursPeriod[];
+    private name: String;
+    private coordinate: google.maps.LatLng;
+    private openingHours: google.maps.places.OpeningHoursPeriod[] | null;
 
-    constructor(name: string, lat: number, lng: number, openingHours: google.maps.places.OpeningHoursPeriod[]) {
+    constructor(name: String, coordinate: google.maps.LatLng, openingHours: google.maps.places.OpeningHoursPeriod[] | null) {
         this.name = name;
+        this.coordinate = coordinate;
 
-        this.latitude = lat;
-        this.longitude = lng;
-
-        this.openingHours = new Array(openingHours.length);
-        for (let day = 0; day < openingHours.length; ++day) {
-            this.openingHours[day] = openingHours[day];
+        if (openingHours === null) {
+            this.openingHours = null;
+        } else {
+            this.openingHours = new Array(openingHours.length);
+            for (let day = 0; day < openingHours.length; ++day) {
+                this.openingHours[day] = openingHours[day];
+            }
         }
     }
 
-    public getName(): string {
+    public getName(): String {
         return this.name;
     }
-    public getLatitude(): number {
-        return this.latitude;
+    public getCoordinate(): google.maps.LatLng {
+        return this.coordinate;
     }
-    public getLongitude(): number {
-        return this.longitude;
-    }
-    public getOpeningHours(): google.maps.places.OpeningHoursPeriod[] {
+    public getOpeningHours(): google.maps.places.OpeningHoursPeriod[] | null{
         return this.openingHours;
     }
 }

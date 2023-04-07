@@ -2,14 +2,16 @@ import { Site } from './site';
 
 class Schedule {
     private site: Site;
-    private visitTime: Date;
-    private leaveTime : Date;
+    private visitTime: String;
+    private leaveTime : String;
+    private commuteMethod: String;
 
-    constructor(site: Site, visitTime: Date, leaveTime: Date) {
-        this.site = new Site(site.getName(), site.getLatitude(), site.getLongitude(), site.getOpeningHours());
+    constructor(site: Site, visitTime: String, leaveTime: String, commuteMethod: String) {
+        this.site = new Site(site.getName(), site.getCoordinate(), site.getOpeningHours());
 
-        this.visitTime = new Date(visitTime);
-        this.leaveTime = new Date(leaveTime);
+        this.visitTime = visitTime;
+        this.leaveTime = leaveTime;
+        this.commuteMethod = commuteMethod;
     }
 }
 

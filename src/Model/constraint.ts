@@ -2,14 +2,28 @@ import { Site } from "./site";
 
 class Constraint {
     private site: Site;
-    private visitTime: Date;
-    private duration: Number;
+    private visitTime: String;
+    private duration: number; // in seconds
 
-    constructor(site : Site, visitTime: Date, duration: Number) {
-        this.site = new Site(site.getName(), site.getLatitude(), site.getLongitude(), site.getOpeningHours());
-        this.visitTime = new Date(visitTime);
-        this.duration = new Number(duration);
+    // visitTime of null and duration of -1 mean no constraint
+    constructor(site : Site, visitTime: String, duration: number) {
+        this.site = new Site(site.getName(), site.getCoordinate(), site.getOpeningHours());
+        this.visitTime = visitTime;
+        this.duration = duration;
     }
+
+    public getSite(): Site {
+        return this.site;
+    }
+
+    public getVisitTime(): String {
+        return this.visitTime;
+    }
+
+    public getDuration(): number {
+        return this.duration;
+    }
+
 }
 
 export { Constraint };
