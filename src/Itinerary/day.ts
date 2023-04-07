@@ -10,14 +10,24 @@ class Day{
     }
 
     nextDay(){
-        if(this.day < this.numDays){
-            this.day += 1;
+        if(this.getDay() + 1 < this.numDays){
+            this.day = this.day +  1;
+            console.log("day", this.day)
+            console.log("numDays", this.numDays)
+        }
+        else{
+            console.log('Invalid Day')
         }
     }
 
     previousDay(){
-        if(this.day > 0){
+        if(this.day- 1 >= 0){
             this.day -= 1;
+            console.log("day", this.day)
+            console.log("numDays", this.numDays)
+        }
+        else{
+            console.log('Invalid Day')
         }
     }
 
