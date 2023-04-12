@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './css/index.css';
 import reportWebVitals from './reportWebVitals';
@@ -11,7 +11,7 @@ import ItineraryPage from './Itinerary/itineraryPage';
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
-  );
+);
 
 root.render(
   <BrowserRouter>

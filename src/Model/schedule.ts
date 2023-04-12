@@ -6,7 +6,7 @@ class Schedule {
     private leaveTime : Date;
 
     constructor(site: Site, visitTime: Date, leaveTime: Date) {
-        this.site = new Site(site.getName(), site.getLatitude(), site.getLongitude(), site.getOpeningHours());
+        this.site = new Site(site.getName(), site.getCoordinate(), site.getOpeningHours());
 
         this.visitTime = new Date(visitTime);
         this.leaveTime = new Date(leaveTime);

@@ -3,7 +3,7 @@
   }
   
 
-  .container {
+  .itinerary-container {
     margin-top: var(--container-margin-top);
     display: flex;
     height: 90%;
