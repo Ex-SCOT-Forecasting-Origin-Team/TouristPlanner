@@ -50,7 +50,7 @@ function ItineraryPage(){
         console.log("Day: " + day.day)
     }
 
-    function initMap() {
+    async function initMap() {
         const directionsService = new google.maps.DirectionsService();
         const directionsRenderer = new google.maps.DirectionsRenderer();
         var defaultLocation = new google.maps.LatLng(45.6720, 122.6681);
@@ -68,7 +68,7 @@ function ItineraryPage(){
                 origin: itinerary.day[day.day].places[currPlace].origin.name,
                 destination: itinerary.day[day.day].places[currPlace].destination.name,
                 transitOptions: {
-                    departureTime: new Date(itinerary.day[day.day].places[currPlace].commute.visitTime),
+                    departureTime: new Date(itinerary.day[day.day].places[currPlace].commute.visitTime), 
                 },
                 travelMode: getTravelMethod(itinerary, day.day, currPlace)
             }
@@ -76,50 +76,55 @@ function ItineraryPage(){
         } 
         
         const directions: any[] = [];
+        const instructions: any[] = [];
 
         for (let i = 0; i < requests.length; i++) {
             const renderer = new google.maps.DirectionsRenderer();
             renderer.setMap(map);
             renderers.push(renderer);
-            
-            directionsService.route(requests[i], (result, status) => {
-              if (status == 'OK') {
-                directions.push(result);
-                renderers[i].setDirections(result);
-              }
-            });
-        }
-        
-        console.log(directions)
-        console.log(directions[0])
+          
+            await Promise.all(requests.map(request => {
+              return new Promise((resolve, reject) => {
+                directionsService.route(requests[i], (result, status) => {
+                  if (status == 'OK') {
+                    resolve(result);
+                    if(result != null){
+                      directions.push(result);
+                      console.log("here", result)
+                      renderers[i].setDirections(result);
+                      const route = result.routes[i];
+                      for (let i = 0; i < route.legs.length; i++) {
+                        const steps = route.legs[i].steps;
+                        for(let step = 0; step < steps.length; step++){
+                            instructions.push(steps[step].instructions);
+                        }
+                      }
+                    } else {
+                      reject();
+                    }
+                  }
+                });
+              });
+            }));
+          }
+        console.log("directions", directions)
+          const summaryPanel = document.getElementById(
+            "directions-panel"
+        ) as HTMLElement;
         console.log(directions.length)
         for(let i = 0; i < directions.length; i++){
-            const route = directions[i];
-            console.log("here", route)
-            const summaryPanel = document.getElementById(
-                "directions-panel"
-            ) as HTMLElement;
-            summaryPanel.innerHTML = "";
-            // For each route, display summary information.
-            for (let i = 0; i < route.legs.length; i++) {
-                const steps = route.legs[i].steps;
-                const routeSegment = i + 1;
+            const routeSegment = i + 1;
+            const route = directions[i].routes[0].legs;
+            console.log(i)        
+    
+            summaryPanel.innerHTML += "<b>Route Segment: " + routeSegment + "</b><br>";
+            summaryPanel.innerHTML += route[0].start_address + " to ";
+            summaryPanel.innerHTML += route[0].end_address + "<br>";
+            for(let j = 0; j < route[0].steps.length; j++){
+                const steps = route[0].steps[j]
+                console.log(steps)
 
-                summaryPanel.innerHTML +=
-                "<b>Route Segment: " + routeSegment + "</b><br>";
-                summaryPanel.innerHTML += route.legs[i].start_address + " to ";
-                summaryPanel.innerHTML += route.legs[i].end_address + "<br>";
-                summaryPanel.innerHTML += route.legs[i].distance!.text + "<br><br>";
-                for(let step = 0; step < steps.length; step++){
-                    summaryPanel.innerHTML += steps[step].instructions + "  ";
-                    const distanceInMeters = steps[step].distance!.value;
-                    const distanceInKilometers = distanceInMeters / 1000;
-                    if(step != steps.length -1){
-                        summaryPanel.innerHTML += distanceInKilometers + " miles"  + "<br><br>";
-                    }else{
-                        summaryPanel.innerHTML +="<br>";
-                    }
-                }
+                summaryPanel.innerHTML += instructions[j] + " in "+ steps.distance!.text + "<br>";
             }
         }
 
@@ -145,7 +150,7 @@ function ItineraryPage(){
             }}>
                     Previous Day
             </button>
-            <div className="container">
+            <div className="itinerary-container">
                 <div className='maps'> 
                     <ItineraryPageGoogleMap></ItineraryPageGoogleMap>
                 </div>

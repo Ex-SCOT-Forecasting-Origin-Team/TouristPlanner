@@ -12,7 +12,7 @@
   .maps {
     flex: 1;
     max-width: 80%;
-    margin-left: -200px;
+    margin-left: 100px;
   }
   
   .directions {
