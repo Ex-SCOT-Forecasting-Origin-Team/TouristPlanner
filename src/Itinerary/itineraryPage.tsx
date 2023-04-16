@@ -9,6 +9,7 @@ import { DirectionsRequest } from './directionsRequest';
 import itinerary from './fakeData.json'
 import '../css/Itinerary.css'
 import { render } from '@testing-library/react';
+import { resolve } from 'path';
 // import './css/GoogleMapEntity.css'
 
 function ItineraryPage(){
@@ -52,14 +53,22 @@ function ItineraryPage(){
 
     async function initMap() {
         const directionsService = new google.maps.DirectionsService();
-        const directionsRenderer = new google.maps.DirectionsRenderer();
+const directionsRenderer = new google.maps.DirectionsRenderer();
+const renderers: google.maps.DirectionsRenderer[] = [];
+const directions: google.maps.DirectionsResult[] = [];
+const instructions: string[] = [];
+let stepDisplay: google.maps.InfoWindow;
+
+
+        // const directionsService = new google.maps.DirectionsService();
+        // const directionsRenderer = new google.maps.DirectionsRenderer();
         var defaultLocation = new google.maps.LatLng(45.6720, 122.6681);
         const map = new window.google.maps.Map(document.getElementById("map") as HTMLElement, {
             zoom: 14,
             center: defaultLocation
         });
 
-        var renderers: google.maps.DirectionsRenderer[] = [];
+        // var renderers: google.maps.DirectionsRenderer[] = [];
         var requests: DirectionsRequest[] = []
         const numPlaces = Object.keys(itinerary.day[day.day].places).length;
 
@@ -74,63 +83,127 @@ function ItineraryPage(){
             }
             requests.push(stop)
         } 
-        
-        const directions: any[] = [];
-        const instructions: any[] = [];
-
         for (let i = 0; i < requests.length; i++) {
             const renderer = new google.maps.DirectionsRenderer();
             renderer.setMap(map);
             renderers.push(renderer);
-            
-            await Promise.all([new Promise((resolve, reject) => {
-              directionsService.route(requests[i], (result, status) => {
-                if (status == 'OK') {
-                  resolve(result);
-                  if(result != null){
-                    directions.push(result);
-                    console.log("here", result)
-                    renderers[i].setDirections(result);
-                    const route = result.routes[0];
-                    for (let j = 0; j < route.legs.length; j++) {
-                      const steps = route.legs[j].steps;
-                      for(let k = 0; k < steps.length; k++){
-                        instructions.push(steps[k].instructions);
+          
+            await Promise.all([
+              new Promise<void>((resolve, reject) => {
+                directionsService.route(requests[i], (result, status) => {
+                  if (status == 'OK') {
+                    if (result != null) {
+                      directions.push(result);
+                      console.log(result);
+                      renderer.setDirections(result);
+                      const route = result.routes[0];
+                      for (let j = 0; j < route.legs.length; j++) {
+                        const steps = route.legs[j].steps;
+                        for (let k = 0; k < steps.length; k++) {
+                          instructions.push(steps[k].instructions!);
+                        }
                       }
+                      resolve();
+                    } else {
+                      reject();
                     }
-                  } else {
-                    reject();
                   }
-                }
-              });
-            })]);
+                });
+              }),
+            ]);
           }
-        console.log("directions", directions)
+          
+          console.log('directions', directions);
+          
           const summaryPanel = document.getElementById(
-            "directions-panel"
-        ) as HTMLElement;
-        console.log(directions.length)
-        for(let i = 0; i < directions.length; i++){
+            'directions-panel'
+          )!;
+          console.log(directions.length);
+          for (let i = 0; i < directions.length; i++) {
             const routeSegment = i + 1;
-            console.log("2", directions[i])
-            console.log(directions[i].request)
+            const button = document.createElement('button');
+            button.innerText = 'Route Segment ' + routeSegment;
+            button.addEventListener('click', () => {
+              directionsRenderer.setDirections(directions[i]);
+              const route = directions[i].routes[0];
+              const overviewPath = route.overview_path;
+              const bounds = new google.maps.LatLngBounds();
+              for (let j = 0; j < overviewPath.length; j++) {
+                bounds.extend(overviewPath[j]);
+              }
+              map.fitBounds(bounds);
+            });
+          
             const route = directions[i].routes[0].legs;
-            console.log(i)        
-    
-            summaryPanel.innerHTML += "<b>Route Segment: " + routeSegment + "</b><br>";
-            summaryPanel.innerHTML += directions[i].request.origin.query + " to ";
-            summaryPanel.innerHTML += directions[i].request.destination.query + "<br>";
-            for(let j = 0; j < route[0].steps.length; j++){
-                const steps = route[0].steps[j]
-                // console.log(steps)
-                // console.log(instructions)
-                summaryPanel.innerHTML += instructions[j] + " in "+ steps.distance!.text + "<br>";
+
+            summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
+            summaryPanel.innerHTML += requests[i].origin + ' to ';
+            summaryPanel.innerHTML += requests[i].destination + '<br>';
+            for (let j = 0; j < route[0].steps.length; j++) {
+              const steps = route[0].steps[j];
+              summaryPanel.innerHTML += instructions[j] + ' in ' + steps.distance!.text + '<br>';
             }
-        }
+          
+            summaryPanel.appendChild(button);
+          }
+          
+          directionsRenderer.setMap(map);
+          stepDisplay = new google.maps.InfoWindow();
+        
+        // const directions: any[] = [];
+        // const instructions: any[] = [];
+        
 
-        directionsRenderer.setMap(map);
+        // for (let i = 0; i < requests.length; i++) {
+        //     const renderer = new google.maps.DirectionsRenderer();
+        //     renderer.setMap(map);
+        //     renderers.push(renderer);
+            
+        //     await Promise.all([new Promise((resolve, reject) => {
+        //       directionsService.route(requests[i], (result, status) => {
+        //         if (status == 'OK') {
+        //           if(result != null){
+        //             directions.push(result);
+        //             console.log(result)
+        //             renderers[i].setDirections(result);
+        //             const route = result.routes[0];
+        //             for (let j = 0; j < route.legs.length; j++) {
+        //               const steps = route.legs[j].steps;
+        //               for(let k = 0; k < steps.length; k++){
+        //                 instructions.push(steps[k].instructions);
+        //               }
+        //             }
+        //           } else {
+        //             reject();
+        //           }
+        //         }
+        //       });
+        //     })]);
+        //   }
 
-        stepDisplay = new google.maps.InfoWindow();
+        // console.log("directions", directions)
+        //   const summaryPanel = document.getElementById(
+        //     "directions-panel"
+        // ) as HTMLElement;
+        // console.log(directions.length)
+        // for(let i = 0; i < directions.length; i++){
+        //     const routeSegment = i + 1;
+        //     const route = directions[i].routes[0].legs
+        //     summaryPanel.innerHTML += "<b>Route Segment: " + routeSegment + "</b><br>";
+        //     summaryPanel.innerHTML += directions[i].request.origin.query + " to ";
+        //     summaryPanel.innerHTML += directions[i].request.destination.query + "<br>";
+        //     for(let j = 0; j < route[0].steps.length; j++){
+        //         const steps = route[0].steps[j]
+        //         // console.log(steps)
+        //         // console.log(instructions)
+        //         summaryPanel.innerHTML += instructions[j] + " in "+ steps.distance!.text + "<br>";
+        //     }
+        // }
+
+
+        // directionsRenderer.setMap(map);
+
+        // stepDisplay = new google.maps.InfoWindow();
     }
 
     return(
