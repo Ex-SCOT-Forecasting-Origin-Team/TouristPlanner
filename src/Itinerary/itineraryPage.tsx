@@ -82,30 +82,28 @@ function ItineraryPage(){
             const renderer = new google.maps.DirectionsRenderer();
             renderer.setMap(map);
             renderers.push(renderer);
-          
-            await Promise.all(requests.map(request => {
-              return new Promise((resolve, reject) => {
-                directionsService.route(requests[i], (result, status) => {
-                  if (status == 'OK') {
-                    resolve(result);
-                    if(result != null){
-                      directions.push(result);
-                      console.log("here", result)
-                      renderers[i].setDirections(result);
-                      const route = result.routes[i];
-                      for (let i = 0; i < route.legs.length; i++) {
-                        const steps = route.legs[i].steps;
-                        for(let step = 0; step < steps.length; step++){
-                            instructions.push(steps[step].instructions);
-                        }
+            
+            await Promise.all([new Promise((resolve, reject) => {
+              directionsService.route(requests[i], (result, status) => {
+                if (status == 'OK') {
+                  resolve(result);
+                  if(result != null){
+                    directions.push(result);
+                    console.log("here", result)
+                    renderers[i].setDirections(result);
+                    const route = result.routes[0];
+                    for (let j = 0; j < route.legs.length; j++) {
+                      const steps = route.legs[j].steps;
+                      for(let k = 0; k < steps.length; k++){
+                        instructions.push(steps[k].instructions);
                       }
-                    } else {
-                      reject();
                     }
+                  } else {
+                    reject();
                   }
-                });
+                }
               });
-            }));
+            })]);
           }
         console.log("directions", directions)
           const summaryPanel = document.getElementById(
@@ -114,16 +112,18 @@ function ItineraryPage(){
         console.log(directions.length)
         for(let i = 0; i < directions.length; i++){
             const routeSegment = i + 1;
+            console.log("2", directions[i])
+            console.log(directions[i].request)
             const route = directions[i].routes[0].legs;
             console.log(i)        
     
             summaryPanel.innerHTML += "<b>Route Segment: " + routeSegment + "</b><br>";
-            summaryPanel.innerHTML += route[0].start_address + " to ";
-            summaryPanel.innerHTML += route[0].end_address + "<br>";
+            summaryPanel.innerHTML += directions[i].request.origin.query + " to ";
+            summaryPanel.innerHTML += directions[i].request.destination.query + "<br>";
             for(let j = 0; j < route[0].steps.length; j++){
                 const steps = route[0].steps[j]
-                console.log(steps)
-
+                // console.log(steps)
+                // console.log(instructions)
                 summaryPanel.innerHTML += instructions[j] + " in "+ steps.distance!.text + "<br>";
             }
         }
