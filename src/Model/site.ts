@@ -1,4 +1,3 @@
-
 class Site {
     private name: String;
     private coordinate: google.maps.LatLng;
@@ -6,10 +5,9 @@ class Site {
 
     constructor(name: String, coordinate: google.maps.LatLng, openingHours: google.maps.places.PlaceOpeningHoursPeriod[] | null) {
         this.name = name;
-
         this.coordinate = coordinate;
 
-        if(openingHours === null){
+        if (openingHours === null) {
             this.openingHours = null;
         } else {
             this.openingHours = new Array(openingHours.length);
@@ -25,16 +23,8 @@ class Site {
     public getCoordinate(): google.maps.LatLng {
         return this.coordinate;
     }
-    public getOpeningHours(): google.maps.places.PlaceOpeningHoursPeriod[] | null {
+    public getOpeningHours(): google.maps.places.PlaceOpeningHoursPeriod[] | null{
         return this.openingHours;
-    }
-
-    public getLatitude(): Number {
-        return this.coordinate.lat();
-    }
-
-    public getLongitude(): Number {
-        return this.coordinate.lng();
     }
 }
 
