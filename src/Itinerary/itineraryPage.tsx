@@ -9,6 +9,7 @@ import { DirectionsRequest } from './directionsRequest';
 import itinerary from './fakeData.json'
 import '../css/Itinerary.css'
 import { render } from '@testing-library/react';
+import { resolve } from 'path';
 // import './css/GoogleMapEntity.css'
 
 function ItineraryPage(){
@@ -50,16 +51,27 @@ function ItineraryPage(){
         console.log("Day: " + day.day)
     }
 
-    function initMap() {
+    async function initMap() {
+      const rendererOptions: google.maps.DirectionsRendererOptions = {
+        polylineOptions: { strokeColor: "blue" }
+      };
         const directionsService = new google.maps.DirectionsService();
-        const directionsRenderer = new google.maps.DirectionsRenderer();
+        const directionsRenderer = new google.maps.DirectionsRenderer(rendererOptions);
+        const renderers: google.maps.DirectionsRenderer[] = [];
+        const directions: google.maps.DirectionsResult[] = [];
+        const instructions: string[] = [];
+        let stepDisplay: google.maps.InfoWindow;
+
+
+        // const directionsService = new google.maps.DirectionsService();
+        // const directionsRenderer = new google.maps.DirectionsRenderer();
         var defaultLocation = new google.maps.LatLng(45.6720, 122.6681);
         const map = new window.google.maps.Map(document.getElementById("map") as HTMLElement, {
             zoom: 14,
             center: defaultLocation
         });
 
-        var renderers: google.maps.DirectionsRenderer[] = [];
+        // var renderers: google.maps.DirectionsRenderer[] = [];
         var requests: DirectionsRequest[] = []
         const numPlaces = Object.keys(itinerary.day[day.day].places).length;
 
@@ -68,64 +80,74 @@ function ItineraryPage(){
                 origin: itinerary.day[day.day].places[currPlace].origin.name,
                 destination: itinerary.day[day.day].places[currPlace].destination.name,
                 transitOptions: {
-                    departureTime: new Date(itinerary.day[day.day].places[currPlace].commute.visitTime),
+                    departureTime: new Date(itinerary.day[day.day].places[currPlace].commute.visitTime), 
                 },
                 travelMode: getTravelMethod(itinerary, day.day, currPlace)
             }
             requests.push(stop)
         } 
-        
-        const directions: any[] = [];
-
         for (let i = 0; i < requests.length; i++) {
-            const renderer = new google.maps.DirectionsRenderer();
-            renderer.setMap(map);
-            renderers.push(renderer);
-            
+          const renderer = new google.maps.DirectionsRenderer();
+          renderer.setMap(map);
+          renderers.push(renderer);
+        
+          // Make the DirectionsService request and wait for the response
+          const result = await new Promise<google.maps.DirectionsResult>((resolve, reject) => {
             directionsService.route(requests[i], (result, status) => {
-              if (status == 'OK') {
+              if (status == "OK" && result != null) {
                 directions.push(result);
-                renderers[i].setDirections(result);
+                console.log(result);
+                renderer.setDirections(result);
+                const route = result.routes[0];
+                for (let j = 0; j < route.legs.length; j++) {
+                  const steps = route.legs[j].steps;
+                  for (let k = 0; k < steps.length; k++) {
+                    instructions.push(steps[k].instructions!);
+                  }
+                }
+                resolve(result);
+              } else {
+                reject(new Error(`Directions request failed with status: ${status}`));
               }
             });
-        }
+          });
         
-        console.log(directions)
-        console.log(directions[0])
-        console.log(directions.length)
-        for(let i = 0; i < directions.length; i++){
-            const route = directions[i];
-            console.log("here", route)
-            const summaryPanel = document.getElementById(
-                "directions-panel"
-            ) as HTMLElement;
-            summaryPanel.innerHTML = "";
-            // For each route, display summary information.
-            for (let i = 0; i < route.legs.length; i++) {
-                const steps = route.legs[i].steps;
-                const routeSegment = i + 1;
-
-                summaryPanel.innerHTML +=
-                "<b>Route Segment: " + routeSegment + "</b><br>";
-                summaryPanel.innerHTML += route.legs[i].start_address + " to ";
-                summaryPanel.innerHTML += route.legs[i].end_address + "<br>";
-                summaryPanel.innerHTML += route.legs[i].distance!.text + "<br><br>";
-                for(let step = 0; step < steps.length; step++){
-                    summaryPanel.innerHTML += steps[step].instructions + "  ";
-                    const distanceInMeters = steps[step].distance!.value;
-                    const distanceInKilometers = distanceInMeters / 1000;
-                    if(step != steps.length -1){
-                        summaryPanel.innerHTML += distanceInKilometers + " miles"  + "<br><br>";
-                    }else{
-                        summaryPanel.innerHTML +="<br>";
-                    }
-                }
+          // Create a button for the route and add an event listener to it
+          const routeSegment = i + 1;
+          const button = document.createElement("button");
+          button.innerText = "Route Segment " + routeSegment;
+          button.addEventListener("click", () => {
+            // Set the stroke color of the route to red
+            renderer.setOptions({
+              polylineOptions: { strokeColor: "red" },
+            });
+            // Set the DirectionsRenderer to display the selected route
+            renderer.setDirections(result);
+            // Fit the map bounds to the selected route
+            const overviewPath = result.routes[0].overview_path;
+            const bounds = new google.maps.LatLngBounds();
+            for (let j = 0; j < overviewPath.length; j++) {
+              bounds.extend(overviewPath[j]);
             }
+            map.fitBounds(bounds);
+          });
+        
+          // Add the button and route summary information to the directions panel
+          const route = result.routes[0].legs;
+          const summaryPanel = document.getElementById("directions-panel")!;
+          summaryPanel.innerHTML += "<b>Route Segment: " + routeSegment + "</b><br>";
+          summaryPanel.innerHTML += requests[i].origin + " to ";
+          summaryPanel.innerHTML += requests[i].destination + "<br>";
+          for (let j = 0; j < route[0].steps.length; j++) {
+            const steps = route[0].steps[j];
+            summaryPanel.innerHTML +=
+              instructions[j] + " in " + steps.distance!.text + "<br>";
+          }
+          summaryPanel.appendChild(button);
         }
-
-        directionsRenderer.setMap(map);
-
-        stepDisplay = new google.maps.InfoWindow();
+          
+          directionsRenderer.setMap(map);
+          stepDisplay = new google.maps.InfoWindow();
     }
 
     return(
@@ -145,7 +167,7 @@ function ItineraryPage(){
             }}>
                     Previous Day
             </button>
-            <div className="container">
+            <div className="itinerary-container">
                 <div className='maps'> 
                     <ItineraryPageGoogleMap></ItineraryPageGoogleMap>
                 </div>
