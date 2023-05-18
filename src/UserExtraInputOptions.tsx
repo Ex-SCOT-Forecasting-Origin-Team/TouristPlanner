@@ -5,8 +5,45 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Constraint  } from "./Model/constraint"
+import { createSearchParams, useNavigate } from 'react-router-dom';
+import { Constraint  } from "./Model/constraint";
+import { Scheduler } from "./Control/scheduler";
+
+
+async function retrieveSchedule(constraints: Constraint[], stayDurationEachDay: [string, string][], numDays: number) {
+  let day = 0;
+  let locationCount = 0;
+  let schedule = new Array();
+
+  while (day < numDays && constraints.length > 0) {
+    let scheduler = new Scheduler(google.maps.TravelMode.DRIVING, stayDurationEachDay[day], constraints);
+    scheduler.setStartLocation(-1);
+
+    await scheduler.getSchedule();
+
+    let result = scheduler.getResult();
+    schedule.push(result);
+
+    for (let toVisit = 0; toVisit < result.length; ++toVisit) {
+      console.log(result[toVisit].getSite());
+      if (result[toVisit].getSite() == null) {
+        continue;
+      }
+
+      for (let location = constraints.length - 1; location >= 0; --location) {
+        if (constraints[location].getSite().getName() === result[toVisit].getSite()!.getName()) {
+          constraints.splice(location, 1);
+          ++locationCount;
+          break;
+        }
+      }
+    }
+
+    ++day;
+  }
+
+  return schedule;
+}
 
 export default function UserExtraInputOptions({savedLocation}: {savedLocation: Constraint[]}) {
   const navigate = useNavigate();
@@ -20,15 +57,16 @@ export default function UserExtraInputOptions({savedLocation}: {savedLocation: C
     e.preventDefault();
 
     let HomePageInput: any = {};
+
     HomePageInput.stayDurationEachDay = Array.from(Array(state["num"]).keys()).map((i:number) => {
       let formGridStartTime = "10:00";
       let formGridEndTime = "20:00";
-      const formGridStartTimeElt = document.getElementById("formGridStartTime"+i.toString()) as HTMLInputElement;
-      const formGridEndTimeElt = document.getElementById("formGridEndTime"+i.toString()) as HTMLInputElement;
-      if(formGridStartTimeElt.value != ""){
+      const formGridStartTimeElt = document.getElementById("formGridStartTime"+ i.toString()) as HTMLInputElement;
+      const formGridEndTimeElt = document.getElementById("formGridEndTime"+ i.toString()) as HTMLInputElement;
+      if(formGridStartTimeElt.value !== ""){
         formGridStartTime = formGridStartTimeElt.value;
       }
-      if(formGridEndTimeElt.value != ""){
+      if(formGridEndTimeElt.value !== ""){
         formGridEndTime = formGridEndTimeElt.value;
       }
 
@@ -41,6 +79,9 @@ export default function UserExtraInputOptions({savedLocation}: {savedLocation: C
     HomePageInput.constraints = savedLocation
 
     console.log(HomePageInput)
+
+    let schedule = retrieveSchedule(HomePageInput.constraints, HomePageInput.stayDurationEachDay, Array(state["num"]).length);
+    console.log(schedule);
 
     navigateToPage()
   }
