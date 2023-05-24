@@ -12,7 +12,7 @@ class Constraint {
         this.duration = duration;
     }
 
-    public getSite(): Site {
+    public getSite(): Site{
         return this.site;
     }
 

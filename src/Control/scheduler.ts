@@ -10,18 +10,20 @@ export class Scheduler {
     readonly MAX_SIZE = 10;
     readonly HOURS = 24;
 
+    private startLocation: number;
     private stayDuration: [String, String];
     private method: google.maps.TravelMode;
     private constraints: Constraint[];
     private destinations: Site[]
     private cache: number[][][];
     private commuteTime: number[][];
-    public result: Schedule[];
+    private result: Schedule[];
 
 
     constructor(method: google.maps.TravelMode, stayDuration: [string, string], constraints: Constraint[]) {
         this.method = method;
         this.stayDuration = stayDuration;
+        this.startLocation = 0;
 
         const sz = constraints.length;
         if (sz > this.MAX_SIZE) {
@@ -55,7 +57,35 @@ export class Scheduler {
 
         this.result = new Array<Schedule>();
         this.commuteTime = new Array<Array<number>>();
-        calculateDistanceTime(this.method, this.destinations).then((commuteInfo) => {
+    }
+
+    /**
+     * 
+     * @param startLocation : -1 if we want the scheduler to find out the start location
+     * Else, the index specified is used as the start location
+     */
+    public setStartLocation(startLocation: number) {
+        if (startLocation !== -1) {
+            this.startLocation = startLocation;
+            return;
+        }
+
+        for (let site = 0; site < this.constraints.length; ++site) {
+            if (startLocation === -1 || 
+                (this.constraints[site].getSite().getCoordinate().lat() < this.constraints[startLocation].getSite().getCoordinate().lat())) {
+                startLocation = site;
+            }
+        }
+
+        this.startLocation = startLocation;
+    }
+
+    public getResult() {
+        return this.result;
+    }
+
+    public getSchedule() {
+        const ret = calculateDistanceTime(this.method, this.destinations).then((commuteInfo) => {
             console.log(commuteInfo);
             for (let origin = 0; origin < commuteInfo.length; ++origin) {
                 let row = new Array();
@@ -69,45 +99,47 @@ export class Scheduler {
             console.log(this.result);
         })
 
+        return ret;
     }
 
     private createSchedule() {
-        let startLocation: number = -1;
-
-        for (let site = 0; site < this.constraints.length; ++site) {
-            if (startLocation === -1 || 
-                (this.constraints[site].getSite().getCoordinate().lat() < this.constraints[startLocation].getSite().getCoordinate().lat())) {
-                startLocation = site;
-            }
-        }
-
         // get leave time of the first location
         let time = convertStrToHourAndMin(this.stayDuration[0]);
+        if (this.constraints[this.startLocation].getVisitTime() != null) {
+            time = convertStrToHourAndMin(this.constraints[this.startLocation].getVisitTime());
+        }
+        console.log(time);
+
         let hour = time[0];
         let minute = time[1];
+        console.log("Start time: ", hour, minute);
 
-        let here = startLocation;
-        let visited: number = (1 << here);
+        let here = this.startLocation;
+        let visited: number = 0;
         let maxDuration = this.getMaxDurationSum(visited, here, hour, minute);
+        console.log("start duration: ", maxDuration);
         if (maxDuration === 0) {
             throw new Error("Schedule cannot be generated. ");
         }
 
         let schedule : Schedule[] = [];
-        schedule.push(new Schedule(this.constraints[startLocation].getSite(), this.stayDuration[0]
-        , this.stayDuration[0], this.method.toString()))
 
-        while (true) {
+        do {
+            let currEndTime = getDivisibleByFifteenMin(add(hour, minute, this.constraints[here].getDuration()))
+            schedule.push(new Schedule(this.constraints[here].getSite(), convertHourAndMinToStr(hour, minute)
+         , convertHourAndMinToStr(currEndTime[0], currEndTime[1]), this.method.toString()))
+            console.log(here, ": ", currEndTime[0], currEndTime[1]);
+            
+            visited |= (1 << here);
+
             let temp = this.getEarliest(visited);
             let earliest = temp[0];
             let earliestIdx = temp[1];
 
             let bestChoice = -1;
             let bestDuration = 0;
-            let startHour = -1;
-            let startMinute = -1;
-            let endHour = -1;
-            let endMinute = -1;
+            let nextStartHour = 0;
+            let nextStartMinute = 0;
 
             let commuteTimes = this.commuteTime[here];
             for (let next = 0; next < this.constraints.length; ++next) {
@@ -115,51 +147,39 @@ export class Scheduler {
                     continue;
                 }
 
-                let nextStartTime = getDivisibleByFifteenMin(add(hour, minute, commuteTimes[next]));
+                let nextStartTime = getDivisibleByFifteenMin(add(currEndTime[0], currEndTime[1], commuteTimes[next]));
                 let nextStartTimeStr = convertHourAndMinToStr(nextStartTime[0], nextStartTime[1]);
                 if (nextStartTime[0] > 23 || less(earliest, nextStartTimeStr)) {
                     continue;
                 }
 
-                let nextEndTime = getDivisibleByFifteenMin(
-                    add(hour, minute, commuteTimes[next] + this.constraints[next].getDuration()));
-                let nextEndTimeStr = convertHourAndMinToStr(nextEndTime[0], nextEndTime[1]);
-                if (nextEndTime[0] > 23 || (earliestIdx === -1 && less(earliest, nextEndTimeStr))) {
-                    continue;
-                }
-
-                if (next === earliestIdx) { // need to add duration also
+                if (next === earliestIdx) {
                     let hourMin = convertStrToHourAndMin(earliest);
                     nextStartTime = getDivisibleByFifteenMin(hourMin);
-                    nextEndTime = getDivisibleByFifteenMin(add(hourMin[0], hourMin[1], this.constraints[next].getDuration()));
                 }
                 
-                let cand = this.getMaxDurationSum(visited | (1 << next), here, nextEndTime[0], nextEndTime[1]) 
-                + + this.constraints[next].getDuration();
+                let cand = this.getMaxDurationSum(visited, next, nextStartTime[0], nextStartTime[1]) 
+                + this.constraints[next].getDuration();
 
                 if (cand > bestDuration) {
                     bestDuration = cand;
                     bestChoice = next;
-                    startHour = nextStartTime[0];
-                    startMinute = nextStartTime[1];
-                    endHour = nextEndTime[0];
-                    endMinute = nextEndTime[1];
+                    [nextStartHour, nextStartMinute] = nextStartTime;
                 }
             }
 
+            [hour, minute] = [nextStartHour, nextStartMinute];
             if (bestChoice !== -1) {
-                visited |= (1 << bestChoice);
-                hour = endHour;
-                minute = endMinute;
-                here = bestChoice;
-
-                schedule.push(new Schedule(this.constraints[bestChoice].getSite(), 
-                convertHourAndMinToStr(startHour, startMinute), convertHourAndMinToStr(endHour, endMinute), 
-                this.method.toString()));
-            } else {
-                break;
+                // add transit time here
+                let arriveTime = getDivisibleByFifteenMin(add(currEndTime[0], currEndTime[1], commuteTimes[bestChoice]));
+                schedule.push(new Schedule(null, convertHourAndMinToStr(currEndTime[0], currEndTime[1])
+         , convertHourAndMinToStr(arriveTime[0], arriveTime[1]), this.method.toString()))
+                console.log(here, ": ", arriveTime[0], arriveTime[1]);
             }
+
+            here = bestChoice;
         }
+        while(here !== -1);
 
         return schedule;
     }
@@ -203,10 +223,19 @@ export class Scheduler {
             return ret;
         }
 
-        let commuteInfo = this.commuteTime[origin];
         let temp = this.getEarliest(visited);  
         let earliest = temp[0];
-        let earliestIdx = temp[1];   
+        let earliestIdx = temp[1]; 
+
+        // If the end time is earlier than the leave time of the current activity, don't choose this activity 
+        let currEndTime = getDivisibleByFifteenMin(add(hour, minute, this.constraints[origin].getDuration()));
+        let currEndTimeStr = convertHourAndMinToStr(currEndTime[0], currEndTime[1]);
+        if (currEndTime[0] > 23 || (earliestIdx === -1 && less(earliest, currEndTimeStr))) {
+            this.cache[visited][origin][time] = 0;
+            return 0;
+        }
+
+        let commuteInfo = this.commuteTime[origin];
 
         ret = 0; 
         for (let next = 0; next < this.constraints.length; ++next) {
@@ -214,36 +243,25 @@ export class Scheduler {
                 continue;
             }
 
-            let nextStartTime = getDivisibleByFifteenMin(add(hour, minute, commuteInfo[next]));
+            // compute the visit time to the next location by adding the commute time to the current end time
+            let nextStartTime = getDivisibleByFifteenMin(add(currEndTime[0], currEndTime[1], commuteInfo[next]));
             let nextStartTimeStr = convertHourAndMinToStr(nextStartTime[0], nextStartTime[1]);
             if (nextStartTime[0] > 23 || less(earliest, nextStartTimeStr)) {
                 continue;
             }
 
-            let nextEndTime = getDivisibleByFifteenMin(
-                add(hour, minute, commuteInfo[next] + this.constraints[next].getDuration()));
-            let nextEndTimeStr = convertHourAndMinToStr(nextEndTime[0], nextEndTime[1]);
-
-            if (nextEndTime[0] > 23 || (earliestIdx === -1 && less(earliest, nextEndTimeStr))) {
-                continue;
-            }
-
+            // If the user has a particular visit time in mind, use that for the start time
             if (earliestIdx === next) {
                 let hourMin = convertStrToHourAndMin(earliest);
                 nextStartTime = getDivisibleByFifteenMin(hourMin);
-                nextEndTime = getDivisibleByFifteenMin(add(hourMin[0], hourMin[1], this.constraints[next].getDuration()));
             } 
 
-            let cand = this.getMaxDurationSum(visited | (1 << next), next, nextEndTime[0], nextEndTime[1]) 
-            + this.constraints[next].getDuration();
-
-            if (cand > ret) {
-                ret = cand;
-            }
-
+            console.log(nextStartTime);
+            let cand = this.getMaxDurationSum(visited | (1 << origin), next, nextStartTime[0], nextStartTime[1]);
             ret = Math.max(ret, cand);
         }
 
+        ret += this.constraints[origin].getDuration(); 
         this.cache[visited][origin][time] = ret;
 
         return ret;
